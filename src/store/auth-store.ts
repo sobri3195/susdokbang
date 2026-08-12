@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       token: "demo-token-csakt",
       user: {
-        name: "Kolonel Kes Dr. Raka Wiratama",
+        name: "dr. M Sobri Maulana",
         role: "Admin",
         unit: "LAKESPRA",
       },
