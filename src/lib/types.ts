@@ -50,6 +50,36 @@ export type JamTerbangRecord = {
   instruktur: boolean;
 };
 
+export type PreAssessmentStatus = "draft" | "submitted" | "needs_revision" | "verified" | "reviewed";
+export type PreAssessmentPriority = "normal" | "review" | "high";
+
+export type PreAssessment = {
+  id: string;
+  penerbangId: string;
+  examinationType: "Berkala" | "Pasca-sakit" | "Kembali bertugas" | "Keluhan khusus";
+  plannedDate: string;
+  status: PreAssessmentStatus;
+  completion: number;
+  complaints: string;
+  medications: string;
+  sleepHours: number;
+  fatigue: boolean;
+  wellbeingConcern: boolean;
+  documentsComplete: boolean;
+  consent: boolean;
+  priority: PreAssessmentPriority;
+  flags: string[];
+  pilotSubmittedAt?: string;
+  officerName?: string;
+  officerNote?: string;
+  officerVerifiedAt?: string;
+  doctorName?: string;
+  doctorPlan?: string;
+  doctorReviewedAt?: string;
+  revisionNote?: string;
+  updatedAt: string;
+};
+
 export type CoxResult = {
   faktor: string;
   hazardRatio: number;

@@ -12,6 +12,7 @@ import { LoginPage } from "@/pages/login-page";
 import { NotFoundPage } from "@/pages/not-found-page";
 import { PenerbangDetailPage } from "@/pages/penerbang-detail-page";
 import { PenerbangPage } from "@/pages/penerbang-page";
+import { PreAssessmentPage } from "@/pages/pre-assessment-page";
 import { QualityGatePage } from "@/pages/quality-gate-page";
 import { ReportsPage } from "@/pages/reports-page";
 import { SettingsPage } from "@/pages/settings-page";
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
       { path: "demo-sidang", element: <DemoSidangPage /> },
       { path: "penerbang", element: <PenerbangPage /> },
       { path: "penerbang/:id", element: <PenerbangDetailPage /> },
+      { path: "pemeriksaan/pre-assessment", element: <PreAssessmentPage /> },
       { path: "data/mcu", element: <McuPage /> },
       { path: "data/psikotes", element: <PsikotesPage /> },
       { path: "data/jam-terbang", element: <JamTerbangPage /> },
