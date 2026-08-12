@@ -74,6 +74,12 @@ Tahap implementasi import:
 5. Normalisasi tanggal, angka+satuan, tekanan darah, enum status, dan NRP.
 6. Validasi baris, simpan error report, dan commit baris valid dalam transaksi.
 
+## Pre-Assessment Hybrid
+
+Route `/pemeriksaan/pre-assessment` menyediakan workflow Model C: penerbang mengisi self-report, petugas memverifikasi kelengkapan, dan dokter meninjau flag serta menetapkan rencana pemeriksaan. Flag bersifat pendukung prioritas review dan tidak menetapkan status kelaikan.
+
+Schema produksi mencakup `examination_episodes`, `pre_assessments`, `pre_assessment_flags`, dan `examination_audit_events` agar setiap tahap, versi questionnaire, persetujuan, serta sign-off dapat ditelusuri.
+
 ## Modul Validasi Statistik Cox
 
 Route frontend:

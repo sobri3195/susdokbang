@@ -13,6 +13,7 @@ import {
   Plane,
   Settings,
   Presentation,
+  ClipboardCheck,
   Upload,
   Users,
   type LucideIcon,
@@ -47,6 +48,7 @@ export const navSections: NavSection[] = [
     label: "Data Penerbang",
     items: [
       { label: "Penerbang", path: "/penerbang", icon: Users, matchChildren: true, roles: ["Admin", "Dokter Penerbangan", "Analis"] },
+      { label: "Pre-Assessment", path: "/pemeriksaan/pre-assessment", icon: ClipboardCheck, badge: "Hybrid", roles: ["Admin", "Dokter Penerbangan", "Analis"] },
       { label: "Medical Check-Up", path: "/data/mcu", icon: HeartPulse, roles: ["Admin", "Dokter Penerbangan"] },
       { label: "Psikotes", path: "/data/psikotes", icon: Brain, roles: ["Admin", "Dokter Penerbangan"] },
       { label: "Jam Terbang", path: "/data/jam-terbang", icon: Plane, roles: ["Admin", "Dokter Penerbangan", "Analis"] },

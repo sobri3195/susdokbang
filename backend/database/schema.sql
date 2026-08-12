@@ -56,6 +56,71 @@ CREATE TABLE IF NOT EXISTS jam_terbang_records (
   FOREIGN KEY (penerbang_id) REFERENCES penerbang(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS examination_episodes (
+  id VARCHAR(64) PRIMARY KEY,
+  penerbang_id VARCHAR(24) NOT NULL,
+  examination_type ENUM('Berkala','Pasca-sakit','Kembali bertugas','Keluhan khusus') NOT NULL,
+  planned_date DATE NOT NULL,
+  status ENUM('draft','submitted','needs_revision','verified','reviewed') NOT NULL DEFAULT 'draft',
+  priority ENUM('normal','review','high') NOT NULL DEFAULT 'normal',
+  version INT UNSIGNED NOT NULL DEFAULT 1,
+  created_by VARCHAR(64) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (penerbang_id) REFERENCES penerbang(id) ON DELETE RESTRICT,
+  INDEX idx_examination_episode_queue (status, planned_date),
+  INDEX idx_examination_episode_pilot (penerbang_id, planned_date)
+);
+
+CREATE TABLE IF NOT EXISTS pre_assessments (
+  id VARCHAR(64) PRIMARY KEY,
+  episode_id VARCHAR(64) NOT NULL UNIQUE,
+  questionnaire_version VARCHAR(32) NOT NULL,
+  answers_json JSON NOT NULL,
+  completion_percent TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  consent_at TIMESTAMP NULL,
+  pilot_submitted_at TIMESTAMP NULL,
+  officer_name VARCHAR(160) NULL,
+  officer_note TEXT NULL,
+  officer_verified_at TIMESTAMP NULL,
+  doctor_name VARCHAR(160) NULL,
+  doctor_plan TEXT NULL,
+  doctor_reviewed_at TIMESTAMP NULL,
+  revision_note TEXT NULL,
+  snapshot_hash CHAR(64) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (episode_id) REFERENCES examination_episodes(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS pre_assessment_flags (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  pre_assessment_id VARCHAR(64) NOT NULL,
+  rule_code VARCHAR(80) NOT NULL,
+  rule_version VARCHAR(32) NOT NULL,
+  severity ENUM('review','high') NOT NULL,
+  explanation TEXT NOT NULL,
+  status ENUM('open','resolved','overridden') NOT NULL DEFAULT 'open',
+  resolved_by VARCHAR(64) NULL,
+  resolved_at TIMESTAMP NULL,
+  resolution_note TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (pre_assessment_id) REFERENCES pre_assessments(id) ON DELETE CASCADE,
+  INDEX idx_pre_assessment_flag_queue (status, severity)
+);
+
+CREATE TABLE IF NOT EXISTS examination_audit_events (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  episode_id VARCHAR(64) NOT NULL,
+  actor_id VARCHAR(64) NOT NULL,
+  actor_role VARCHAR(64) NOT NULL,
+  action VARCHAR(80) NOT NULL,
+  detail_json JSON NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (episode_id) REFERENCES examination_episodes(id) ON DELETE CASCADE,
+  INDEX idx_examination_audit_timeline (episode_id, created_at)
+);
+
 CREATE TABLE IF NOT EXISTS import_jobs (
   id VARCHAR(64) PRIMARY KEY,
   user_id VARCHAR(64) NOT NULL,
