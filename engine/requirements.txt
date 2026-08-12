@@ -1,0 +1,8 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+pydantic==2.10.4
+pandas==2.2.3
+numpy==2.2.1
+lifelines==0.30.0
+statsmodels==0.14.4
+scikit-survival==0.23.1

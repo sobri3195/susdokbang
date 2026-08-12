@@ -1,0 +1,160 @@
+services:
+  mysql:
+    image: mariadb:11
+    container_name: csakt-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: csakt_root
+      MYSQL_DATABASE: csakt
+      MYSQL_USER: csakt
+      MYSQL_PASSWORD: csakt
+    ports:
+      - "3307:3306"
+    volumes:
+      - csakt_mysql:/var/lib/mysql
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./backend/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  redis:
+    image: redis:7-alpine
+    container_name: csakt-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - csakt_redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/gateway/Dockerfile
+    container_name: csakt-gateway
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: csakt
+      DB_USER: csakt
+      DB_PASSWORD: csakt
+      CORS_ORIGIN: http://127.0.0.1:5174
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_QUEUE: csakt:jobs
+      REDIS_RESULT_PREFIX: csakt:job:
+      REDIS_SUBTASK_QUEUE: csakt:subtasks
+      REDIS_RESULT_QUEUE: csakt:results
+      REDIS_DEADLETTER_QUEUE: csakt:deadletter
+      REDIS_WORKER_HASH: csakt:workers
+      VALIDATION_ENGINE_URL: http://validation-engine:8091
+    ports:
+      - "8080:8080"
+
+  validation-engine:
+    build:
+      context: .
+      dockerfile: engine/Dockerfile
+    container_name: csakt-validation-engine
+    restart: unless-stopped
+    ports:
+      - "8091:8091"
+
+  coordinator:
+    build:
+      context: .
+      dockerfile: distributed/Dockerfile
+    container_name: csakt-coordinator
+    restart: unless-stopped
+    command: ["python", "coordinator.py"]
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      CSAKT_BOOTSTRAPS: 1000
+      CSAKT_CHUNK_SIZE: 100
+
+  worker-1:
+    build:
+      context: .
+      dockerfile: distributed/Dockerfile
+    container_name: csakt-worker-1
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      WORKER_ID: worker-1
+
+  worker-2:
+    build:
+      context: .
+      dockerfile: distributed/Dockerfile
+    container_name: csakt-worker-2
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      WORKER_ID: worker-2
+
+  worker-3:
+    build:
+      context: .
+      dockerfile: distributed/Dockerfile
+    container_name: csakt-worker-3
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      WORKER_ID: worker-3
+      FAIL_ONCE_SUBTASK: JOB-DEMO-ST-003
+
+  worker-4:
+    build:
+      context: .
+      dockerfile: distributed/Dockerfile
+    container_name: csakt-worker-4
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_HOST: redis
+      WORKER_ID: worker-4
+
+  frontend-dashboard:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    container_name: csakt-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_BASE_URL: http://127.0.0.1:8080/backend/api
+    ports:
+      - "5174:5174"
+    depends_on:
+      - gateway
+
+volumes:
+  csakt_mysql:
+  csakt_redis:
