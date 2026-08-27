@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { Navigate, createBrowserRouter, useLocation } from "react-router-dom";
 import { AppLayout } from "@/components/layout/app-layout";
 import { CausalPage } from "@/pages/causal-page";
 import { DashboardPage } from "@/pages/dashboard-page";
@@ -23,13 +23,19 @@ import { ValidationPage } from "@/pages/validation-page";
 import { useAuthStore } from "@/store/auth-store";
 
 function ProtectedRoute() {
-  const token = useAuthStore.getState().token;
-  if (!token) return <Navigate to="/login" replace />;
+  const token = useAuthStore((state) => state.token);
+  const location = useLocation();
+  if (!token) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   return <AppLayout />;
 }
 
+function LoginRoute() {
+  const token = useAuthStore((state) => state.token);
+  return token ? <Navigate to="/dashboard" replace /> : <LoginPage />;
+}
+
 export const router = createBrowserRouter([
-  { path: "/login", element: <LoginPage /> },
+  { path: "/login", element: <LoginRoute /> },
   {
     path: "/",
     element: <ProtectedRoute />,

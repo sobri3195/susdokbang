@@ -18,12 +18,8 @@ type AuthState = {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      token: "demo-token-csakt",
-      user: {
-        name: "dr. M Sobri Maulana",
-        role: "Admin",
-        unit: "LAKESPRA",
-      },
+      token: null,
+      user: null,
       login: (username) =>
         set({
           token: "demo-token-csakt",
@@ -45,6 +41,16 @@ export const useAuthStore = create<AuthState>()(
         })),
       logout: () => set({ token: null, user: null }),
     }),
-    { name: "csakt-auth" },
+    {
+      name: "csakt-auth-v2",
+      storage: {
+        getItem: (name) => {
+          const value = sessionStorage.getItem(name);
+          return value ? JSON.parse(value) : null;
+        },
+        setItem: (name, value) => sessionStorage.setItem(name, JSON.stringify(value)),
+        removeItem: (name) => sessionStorage.removeItem(name),
+      },
+    },
   ),
 );

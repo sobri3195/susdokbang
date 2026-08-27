@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-table";
 import { AlertTriangle, ArrowUpDown, ChevronLeft, ChevronRight, DatabaseZap, Search } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -45,6 +46,7 @@ export function DataTable<TData, TValue>({
   error,
   onRetry,
 }: DataTableProps<TData, TValue>) {
+  const navigate = useNavigate();
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const table = useReactTable({
@@ -59,12 +61,8 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: 6 } },
   });
-  const defaultEmptyAction = () => {
-    window.location.href = "/import";
-  };
-  const defaultRetryAction = () => {
-    window.location.reload();
-  };
+  const defaultEmptyAction = () => navigate("/import");
+  const defaultRetryAction = () => window.location.reload();
 
   if (error) {
     return (
