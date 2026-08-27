@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Activity, Lock, ShieldCheck } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -19,16 +19,18 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const login = useAuthStore((state) => state.login);
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { username: "admin.lakespra", password: "csakt-demo" },
+    defaultValues: { username: "", password: "" },
   });
 
   function onSubmit(values: LoginValues) {
     login(values.username);
     toast.success("Autentikasi berhasil");
-    navigate("/dashboard");
+    const requestedPath = (location.state as { from?: string } | null)?.from;
+    navigate(requestedPath?.startsWith("/") ? requestedPath : "/dashboard", { replace: true });
   }
 
   return (
@@ -60,7 +62,7 @@ export function LoginPage() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Masuk Sistem</CardTitle>
-            <CardDescription>Gunakan kredensial operator yang terdaftar di LAKESPRA.</CardDescription>
+            <CardDescription>Masukkan kredensial operator untuk memulai sesi demo di perangkat ini.</CardDescription>
           </CardHeader>
           <CardContent>
             <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
@@ -74,10 +76,13 @@ export function LoginPage() {
                 <Input id="password" type="password" autoComplete="current-password" {...form.register("password")} />
                 <p className="min-h-5 text-xs text-destructive">{form.formState.errors.password?.message}</p>
               </div>
-              <Button className="w-full" type="submit">
+              <Button className="w-full" type="submit" disabled={form.formState.isSubmitting}>
                 <Lock />
                 Masuk
               </Button>
+              <p className="text-center text-xs leading-5 text-muted-foreground">
+                Mode demonstrasi: autentikasi server wajib diaktifkan sebelum penggunaan dengan data operasional.
+              </p>
             </form>
           </CardContent>
         </Card>

@@ -200,7 +200,7 @@ function RiskNotificationCenter() {
           ) : null}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-96">
+      <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-96">
         <div className="flex items-center justify-between gap-3 px-2 py-2 text-sm font-bold">
           Notifikasi Risiko
           <Badge variant={high ? "danger" : "warning"}>{high} prioritas</Badge>
@@ -309,6 +309,12 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background">
+      <a
+        href="#konten-utama"
+        className="fixed left-4 top-3 z-50 -translate-y-20 rounded-md bg-primary px-4 py-2 text-sm font-bold text-primary-foreground shadow-lg transition-transform focus:translate-y-0"
+      >
+        Lewati ke konten utama
+      </a>
       <DesktopSidebar />
 
       <div className={cn("min-h-screen transition-[padding] duration-200 lg:pl-72", collapsed && "lg:pl-20")}>
@@ -327,7 +333,7 @@ export function AppLayout() {
             </div>
           </div>
         </header>
-        <main className="px-4 py-6 md:px-6 lg:px-8">
+        <main id="konten-utama" tabIndex={-1} className="px-4 py-6 md:px-6 lg:px-8">
           <div className="mx-auto w-full max-w-[1440px]">
             <Outlet />
           </div>
