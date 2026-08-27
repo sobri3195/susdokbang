@@ -20,6 +20,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+      if (window.location.pathname !== "/login") {
+        window.location.assign(`/login?reason=session-expired`);
+      }
+    }
     const message = error.response?.data?.message ?? error.message ?? "Terjadi gangguan layanan";
     return Promise.reject(new Error(message));
   },
